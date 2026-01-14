@@ -1,30 +1,31 @@
-rule procrustes_alignment_per_n_embeddings:
-    container: "src/umap-learn/umap-learn_0.5.9.post2.sif"
+rule orthogonal_procrustes_per_n_embeddings:
+    conda: "envs/biopy.yaml"
     threads: 80
     resources:
         mem_mb_per_cpu=5000,
-        runtime=240
+        runtime=14400
     input:
-        embeddings=expand(
-            "outputs/UMAP/{sample}/seed{seed}/param_set{param_set}.csv",
-            sample=lambda wildcards: wildcards.sample,
-            param_set=lambda wildcards: wildcards.param_set,
-            seed=seeds
-        )
+        flag="outputs/UMAP/call_umap_per_sample_per_seed/{sample}/done.txt",
+        param_table="outputs/UMAP/param_table.csv",
+        seed_list="outputs/UMAP/seeds.txt"
     output:
-        directory("outputs/AlignEmbeddings/procrustes_alignment/{sample}/param_set{param_set}/per_{n}_embeddings")
+        outdir=directory("outputs/AlignEmbeddings/procrustes_alignment/{sample}/per_{n}_embeddings")        
     params:
+        umap_indir="outputs/UMAP/{sample}",
         n=lambda wildcards: wildcards.n
     log:
-        "logs/AlignEmbeddings/procrustes_alignment/{sample}/param_set{param_set}/per_{n}_embeddings.log"
+        "logs/AlignEmbeddings/procrustes_alignment/{sample}/per_{n}_embeddings.log"
     benchmark:
-        "benchmarks/AlignEmbeddings/procrustes_alignment/{sample}/param_set{param_set}/per_{n}_embeddings.log"
+        "benchmarks/AlignEmbeddings/procrustes_alignment/{sample}/per_{n}_embeddings.txt"
     shell:
         """
-        exec python scripts/procrustes_alignment_per_n_embeddings.py \
+        # run the script
+        python scripts/orthogonal_procrustes_per_n_embeddings.py \
+            --umap_indir {params.umap_indir} \
             --n_process {threads} \
             --n_embeddings {params.n} \
-            --output_dir {output} \
-            {input.embeddings} \
+            --output_dir {output.outdir} \
+            --param_table {input.param_table} \
+            --seed_list {input.seed_list} \
         > {log} 2>&1
         """
