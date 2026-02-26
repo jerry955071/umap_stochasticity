@@ -1,6 +1,7 @@
 include: "workflows/CellRanger.smk"
 include: "workflows/Seurat.smk"
 include: "workflows/UMAP.smk"
+include: "workflows/UMAP-high-epochs.smk"
 include: "workflows/InterClusterAngle.smk"
 include: "workflows/AlignEmbeddings.smk"
 
@@ -25,25 +26,57 @@ def _assembly(wildcards):
     return query(config["references"], "species", species)["assembly"]
 
 # samples
-samples = ["ath", "gar", "lch", "osa", "ptr", "tma", "zma"]
+samples = ["ath", "gar", "lch", "osa", "ptr", "tma", "zma", "zma-5k", "zma-1k"]
 
 rule Seurat:
     input:
         expand(
             "outputs/Seurat/{sample}",
-            sample=[s["name"] for s in config["samples"]]
-        )
-
-rule InterClusterAngle:
-    input:
-        expand(
-            "outputs/InterClusterAngle/{sample}",
-            sample=[s["name"] for s in config["samples"]]
+            sample=samples
         )
 
 rule UMAP:
     input:
         expand(
             "outputs/UMAP/call_umap_per_sample_per_seed/{sample}/done.txt",
-            sample=["ath", "gar", "lch", "ptr", "tma"]
+            sample=samples
         )
+
+rule UMAP_high_epochs:
+    input:
+        expand(
+            "outputs/UMAP-high-epochs/call_umap_per_sample_per_seed/{sample}/done.txt",
+            sample=["ptr", "gar"]
+        )
+
+rule InterClusterAngle:
+    input:
+        expand(
+            "outputs/InterClusterAngle/{sample}",
+            sample=samples
+        )
+
+rule AlignEmbeddings:
+    input:
+        expand(
+            "outputs/InterClusterAngle/{sample}/per_{n}_embeddings",
+            sample=samples,
+            n=[10, 20, 50, 100]
+        )
+
+
+rule test_slurm:
+    input:
+        expand("outputs/Snakefile/test_slurm/{repeat}.txt", repeat=range(1,20))
+
+rule test_slurm_unit:
+    threads: 90
+    resources:
+        runtime=1
+    output:
+        "outputs/Snakefile/test_slurm/{repeat}.txt"
+    shell:
+        """
+        sleep 40
+        echo "Test SLURM job $(date)" > {output}
+        """
