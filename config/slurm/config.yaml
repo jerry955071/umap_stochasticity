@@ -2,9 +2,11 @@ executor: slurm
 jobs: unlimited
 software-deployment-method: apptainer
 
-default-resources:
-  max_mem_mb_per_cpu: 5000
-  runtime: 20
+partitions:
+  slurmcustGroup:
+    max_mem_mb_per_cpu: 5000
+    max_mem_mb: 400000
+    max_runtime: 1440
 
 slurm:
   sbatch-defaults:
