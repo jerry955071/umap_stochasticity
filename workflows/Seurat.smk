@@ -9,7 +9,7 @@ def _seurat_input(wildcards):
         return f"notebooks/run-seurat/{wildcards.sample}.Rmd"
 
 rule seurat_preprocessing:
-    container: "src/seurat-rmd/seurat-rmd_5.0.0.sif"
+    container: lambda wildcards: "src/seurat-rmd/seurat-rmd_5.0.0_ds.sif" if "-" in wildcards.sample else "src/seurat-rmd/seurat-rmd_5.0.0.sif"
     threads: 10
     resources:
         mem_mb_per_cpu=5000,

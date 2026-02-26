@@ -1,0 +1,13 @@
+Bootstrap: docker
+From: satijalab/seurat:5.0.0
+
+%environment
+    export S6_VERSION=v2.1.0.2
+    export RSTUDIO_VERSION=2022.02.3+492
+    export DEFAULT_USER=rstudio
+    export PANDOC_VERSION=default
+
+%post
+    apt-get update -y
+    /bin/sh -c /rocker_scripts/install_pandoc.sh
+    Rscript -e "BiocManager::install('DropletUtils', update=FALSE, ask=FALSE)"

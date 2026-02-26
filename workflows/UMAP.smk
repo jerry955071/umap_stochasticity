@@ -52,7 +52,9 @@ def umap_runtime(wildcards):
         "lch": "0.7h",
         "gar": "1h",
         "osa": "2.5h",
-        "zma": "1.1h"
+        "zma": "1.1h",
+        "zma-5k": "1.1h",
+        "zma-1k": "1.1h"
     }
     return runtime_dict.get(wildcards.sample)
 
@@ -64,7 +66,9 @@ def umap_mem_mb_per_cpu(wildcards):
         "lch": 556.733,
         "gar": 958.709,
         "osa": 5000,
-        "zma": 858, # to be confirmed
+        "zma": 858,
+        "zma-5k": 858,
+        "zma-1k": 858
     }
     return mem_dict.get(wildcards.sample)
 
@@ -94,6 +98,7 @@ rule run_umap_for_a_seed:
             --n_process {threads} \
         > {log} 2>&1
         """
+
 
 rule call_umap_per_sample:
     threads: 1
@@ -140,9 +145,9 @@ rule call_umap_per_sample:
             else:
                 print(f"UMAP outputs for sample {wildcards.sample} are incomplete. Please rerun the workflow.", file=log_f)
                 sys.exit(1)
-        
 
-            
+
+
 
 
 # rule run_umap_test:
