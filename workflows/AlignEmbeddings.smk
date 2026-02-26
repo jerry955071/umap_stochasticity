@@ -1,8 +1,9 @@
+# I/O expensive, run one sample at a time (I/O demands increase with decreasing `n`)
 rule orthogonal_procrustes_per_n_embeddings:
     conda: "envs/biopy.yaml"
-    threads: 80
+    threads: 40
     resources:
-        mem_mb_per_cpu=5000,
+        mem_mb_per_cpu=4000,
         runtime=14400
     input:
         flag="outputs/UMAP/call_umap_per_sample_per_seed/{sample}/done.txt",
